@@ -1,0 +1,26 @@
+{
+  "name": "run-params",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cross-env PORT=10889 react-scripts start",
+    "build": "react-scripts build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-env": "^5.2.0",
+    "react-hot-loader": "^4.3.11",
+    "react-scripts": "^1.1.5"
+  },
+  "dependencies": {
+    "@vkontakte/icons": "^1.2.0",
+    "@vkontakte/vkui": "^2.12.5",
+    "@vkontakte/vkui-connect": "^1.1.2",
+    "core-js": "^2.5.7",
+    "react": "^16.6.0",
+    "react-dom": "^16.6.0"
+  }
+}
