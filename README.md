@@ -26,4 +26,5 @@ foreach ($params as $name => $value) {
 $sign = rtrim(strtr(base64_encode(hash('sha256', $sign_string, true)), '+/', '-_'), '=');
 $status = $sign === $params['vk_sign'];
 
-echo ($status ? 'ok' : 'fail')."\n";```
+echo ($status ? 'ok' : 'fail')."\n";
+```
