@@ -24,7 +24,7 @@ class App extends React.Component {
         return (
             <View activePanel="main">
                 <Panel id="main">
-                    <PanelHeader>Run params</PanelHeader>
+                    <PanelHeader>Launch params</PanelHeader>
                     <Group>
                         <List>
                             {Object.keys(paresedQuery).map((key) => {
