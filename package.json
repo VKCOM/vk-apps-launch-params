@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "homepage": "https://vkcom.github.io/vk-apps-launch-params/",
   "scripts": {
     "start": "cross-env PORT=10889 react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "deploy": "gh-pages -d build",
+    "predeploy": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +23,7 @@
     "@vkontakte/vkui": "^2.12.5",
     "@vkontakte/vkui-connect": "^1.1.2",
     "core-js": "^2.5.7",
+    "gh-pages": "^2.0.1",
     "react": "^16.6.0",
     "react-dom": "^16.6.0"
   }
