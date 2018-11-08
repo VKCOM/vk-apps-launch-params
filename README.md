@@ -26,3 +26,35 @@ $status = $sign === $query_params['sign']; // Сравниваем получе�
 
 echo ($status ? 'ok' : 'fail')."\n";
 ```
+
+## Пример проверки подписи на Kotlin
+```kotlin
+/**
+* Function return userid and verify user data
+*
+* @param launchAppQueryParams query which send from VK where app open
+* @param authProfile secret data about app (like app secret)
+*/
+private fun onAppOpenWithQuery(launchAppQueryParams: String, authProfile: AuthProfile): Int {
+    // Create string for hashing
+    val decodeStr = URLDecoder.decode(launchAppQueryParams)
+    val params = decodeStr.split("&").map { it.split("=").toPair() }
+    val checkString = params.asSequence().filter { it.first.startsWith("vk_") }
+            .map { it.second }
+            .joinTo(StringBuilder(), ",", authProfile.appSecret).toString()
+            
+    // Hashing 
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(checkString.toByteArray())
+    val hash = Base64.getEncoder().encodeToString(digest)
+            .replace('+', '-').replace('/', '_')
+            .trim('=')
+            
+    // Using data
+    val paramsMap = params.toMap()
+    if (paramsMap.containsKey("vk_user_id") && paramsMap["sign"].equals(hash)) {
+        return paramsMap["vk_user_id"]!!.toInt()
+    }
+    return 0
+}
+```
