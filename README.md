@@ -1,12 +1,11 @@
 # vk-apps-launch-params
-Пример работы с параметрами запуска
-
-Примеры
+Пример работы с параметрами запуска:
 * [PHP](#php)  
 * [Java (1.8)](#java1p8)  
 * [Python 3](#python3)  
 
 <a name="php"/>
+
 ## Пример проверки подписи на PHP
 
 ```php
@@ -35,6 +34,7 @@ echo ($status ? 'ok' : 'fail')."\n";
 ```
 
 <a name="java1p8"/>
+
 ## Пример проверки подписи на Java (1.8)
 
 ```java
@@ -116,7 +116,8 @@ class Application {
 ```
 
 <a name="python3"/>
-## Python 3
+
+## Пример проверки подписи на Python 3
 
 ```python
 from base64 import b64encode
