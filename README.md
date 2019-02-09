@@ -129,7 +129,7 @@ from urllib.parse import urlparse, parse_qsl, urlencode
 
 def is_valid(*, query: dict, secret: str) -> bool:
     """Check VK Apps signature"""
-    vk_subset = OrderedDict(sorted(filter(lambda x: x[0][:3] == "vk_", query.items())))
+    vk_subset = OrderedDict(sorted(x for x in query.items() if x[0][:3] == "vk_"))
     hash_code = b64encode(HMAC(secret.encode(), urlencode(vk_subset, doseq=True).encode(), sha256).digest())
     return query["sign"] == hash_code.decode('utf-8')[:-1]
 
