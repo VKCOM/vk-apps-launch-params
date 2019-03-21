@@ -1,8 +1,11 @@
 # vk-apps-launch-params
+
 Пример работы с параметрами запуска:
-* [PHP](#php)  
-* [Java (1.8)](#java1p8)  
-* [Python 3](#python3)  
+
+- [PHP](#php)
+- [Java (1.8)](#java1p8)
+- [Python 3](#python3)
+- [Node.js](#nodejs)
 
 <a name="php"/>
 
@@ -24,9 +27,9 @@ foreach ($query_params as $name => $value) {
   $sign_params[$name] = $value;
 }
 
-ksort($sign_params); // Сортируем массив по ключам 
+ksort($sign_params); // Сортируем массив по ключам
 $sign_params_query = http_build_query($sign_params); // Формируем строку вида "param_name1=value&param_name2=value"
-$sign = rtrim(strtr(base64_encode(hash_hmac('sha256', $sign_params_query, $client_secret, true)), '+/', '-_'), '='); // Получаем хеш-код от строки, используя защищеный ключ приложения. Генерация на основе метода HMAC. 
+$sign = rtrim(strtr(base64_encode(hash_hmac('sha256', $sign_params_query, $client_secret, true)), '+/', '-_'), '='); // Получаем хеш-код от строки, используя защищеный ключ приложения. Генерация на основе метода HMAC.
 
 $status = $sign === $query_params['sign']; // Сравниваем полученную подпись со значением параметра 'sign'
 
@@ -143,4 +146,46 @@ query_params = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
 status = is_valid(query=query_params, secret=client_secret)
 
 print("ok" if status else "fail")
+```
+
+<a name="nodejs"/>
+
+## Пример проверки подписи на Node.js
+
+```javascript
+const fs = require('fs') //модуль для ФС
+const crypto = require('crypto') //модуль для криптографии Nodejs
+const { stringify, parse } = require('querystring') //методы для парсинга строки
+
+const URL =
+		'https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_user=1&vk_are_notifications_enabled=1&vk_language=ru&vk_access_token_settings=&vk_platform=android&sign=exTIBPYTrAKDTHLLm2AwJkmcVcvFCzQUNyoa6wAjvW6k',
+	CLIENT_SECRET = 'wvl68m4dR1UpLrVRli'
+
+const checkVKQueryParamsSign = params => {
+	const list_of_params = Object.entries(params) //перевод в обьекта параметро в список
+		.filter(e => e[0].startsWith('vk_')) //фильтрация параметров VK
+		.sort((a, b) => {
+			if (a[0] < b[0]) {
+				return -1
+			}
+			if (a[0] > b[0]) {
+				return 1
+			}
+			return 0
+		}) //сортировка по алфавиту
+	const params_str = stringify(
+		list_of_params.reduce((obj, [k, v]) => ({ ...obj, [k]: v }), {})
+	) //перевод параметров в строковый вид
+
+	const hmac = crypto.createHmac('sha256', CLIENT_SECRET) //инициализация генератора подписи
+	hmac.update(params_str) //добавление строки с параметрами
+	const sign = hmac
+		.digest('base64')
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=/g, '') //генерация подписи
+	return sign === params.sign //сравнение подписей
+}
+
+console.log(checkVKQueryParamsSign(parse(URL)))
 ```
