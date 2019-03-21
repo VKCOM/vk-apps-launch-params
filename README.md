@@ -161,9 +161,11 @@ const URL =
 		'https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_user=1&vk_are_notifications_enabled=1&vk_language=ru&vk_access_token_settings=&vk_platform=android&sign=exTIBPYTrAKDTHLLm2AwJkmcVcvFCzQUNyoa6wAjvW6k',
 	CLIENT_SECRET = 'wvl68m4dR1UpLrVRli'
 
+const isVKParam = e => e[0].startsWith('vk_')
+
 const checkVKQueryParamsSign = params => {
-	const list_of_params = Object.entries(params) //перевод в обьекта параметро в список
-		.filter(e => e[0].startsWith('vk_')) //фильтрация параметров VK
+	const listOfParams = Object.entries(params) //перевод в обьекта параметро в список
+		.filter(isVKParam) //фильтрация параметров VK
 		.sort((a, b) => {
 			if (a[0] < b[0]) {
 				return -1
@@ -173,12 +175,12 @@ const checkVKQueryParamsSign = params => {
 			}
 			return 0
 		}) //сортировка по алфавиту
-	const params_str = stringify(
-		list_of_params.reduce((obj, [k, v]) => ({ ...obj, [k]: v }), {})
+	const paramsStr = stringify(
+		listOfParams.reduce((obj, [k, v]) => ({ ...obj, [k]: v }), {})
 	) //перевод параметров в строковый вид
 
 	const hmac = crypto.createHmac('sha256', CLIENT_SECRET) //инициализация генератора подписи
-	hmac.update(params_str) //добавление строки с параметрами
+	hmac.update(paramsStr) //добавление строки с параметрами
 	const sign = hmac
 		.digest('base64')
 		.replace(/\+/g, '-')
