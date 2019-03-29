@@ -20,15 +20,26 @@ class App extends React.Component {
     };
 
     render() {
-        const paresedQuery = this.parseQueryString(window.location.search);
+        const queryParams = this.parseQueryString(window.location.search);
+        const hashParams = this.parseQueryString(window.location.hash);
+
         return (
             <View activePanel="main">
                 <Panel id="main">
                     <PanelHeader>Launch params</PanelHeader>
-                    <Group>
+                    <Group title="Query params">
                         <List>
-                            {Object.keys(paresedQuery).map((key) => {
-                                let value = paresedQuery[key];
+                            {Object.keys(queryParams).map((key) => {
+                                let value = queryParams[key];
+                                return <Cell description={key}>{value ? value : <span style={{color: 'red'}}>-</span>}</Cell>;
+                            })}
+                        </List>
+                    </Group>
+
+                    <Group title="Hash params">
+                        <List>
+                            {Object.keys(hashParams).map((key) => {
+                                let value = hashParams[key];
                                 return <Cell description={key}>{value ? value : <span style={{color: 'red'}}>-</span>}</Cell>;
                             })}
                         </List>

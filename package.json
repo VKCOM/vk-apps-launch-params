@@ -5,7 +5,7 @@
   "main": "index.js",
   "homepage": "https://vkcom.github.io/vk-apps-launch-params/",
   "scripts": {
-    "start": "cross-env PORT=10889 react-scripts start",
+    "start": "cross-env PORT=10888 react-scripts start",
     "build": "react-scripts build",
     "deploy": "gh-pages -d build",
     "predeploy": "npm run build"
@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@vkontakte/icons": "^1.2.0",
-    "@vkontakte/vkui": "^2.12.5",
+    "@vkontakte/vkui": "^2.20.0",
     "@vkontakte/vkui-connect": "^1.1.2",
     "core-js": "^2.5.7",
     "gh-pages": "^2.0.1",
