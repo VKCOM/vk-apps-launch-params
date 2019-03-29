@@ -26,5 +26,15 @@
     "gh-pages": "^2.0.1",
     "react": "^16.6.0",
     "react-dom": "^16.6.0"
+  },
+  "prettier": {
+    "useTabs": true,
+    "printWidth": 90,
+    "tabWidth": 2,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "jsxBracketSameLine": false,
+    "parser": "flow",
+    "semi": false
   }
 }
