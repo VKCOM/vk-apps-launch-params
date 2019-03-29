@@ -19,7 +19,7 @@
     "react-scripts": "^1.1.5"
   },
   "dependencies": {
-    "@vkontakte/icons": "^1.2.0",
+    "@vkontakte/icons": "^1.4.3",
     "@vkontakte/vkui": "^2.20.0",
     "@vkontakte/vkui-connect": "^1.1.2",
     "core-js": "^2.5.7",
