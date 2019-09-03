@@ -3,6 +3,7 @@
 * [PHP](#php)  
 * [Java (1.8)](#java1p8)  
 * [Python 3](#python3)  
+* [Golang](#go)  
 
 <a name="php"/>
 
@@ -143,4 +144,74 @@ query_params = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
 status = is_valid(query=query_params, secret=client_secret)
 
 print("ok" if status else "fail")
+```
+
+<a name="go"/>
+
+## Пример проверки подписи на Golang
+
+```go
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"fmt"
+	"net/url"
+	"sort"
+	"strings"
+)
+
+func isValid(link, clientSecret string) (bool, error) {
+	// Парсинг URL и query-параметров
+	u, err := url.Parse(link)
+	if err != nil {
+		return false, err
+	}
+	rawParams, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return false, err
+	}
+	if len(rawParams["sign"]) == 0 {
+		return false, fmt.Errorf("not found sign")
+	}
+
+	// Фильтруем vk_ параметры
+	vkPrefix := make(url.Values)
+
+	for key, values := range rawParams {
+		if strings.HasPrefix(key, "vk_") {
+			for _, value := range values {
+				vkPrefix.Add(key, value)
+			}
+		}
+	}
+
+	// Генерируем хеш код
+	mac := hmac.New(sha256.New, []byte(clientSecret))
+	_, _ = mac.Write([]byte(vkPrefix.Encode())) // Encode сортирует по ключу
+	expectedMAC := mac.Sum(nil)
+
+	// Генерируем base64
+	base64Sign := base64.StdEncoding.EncodeToString(expectedMAC)
+	base64Sign = strings.ReplaceAll(base64Sign, "+", "-")
+	base64Sign = strings.ReplaceAll(base64Sign, "/", "_")
+	base64Sign = strings.TrimRight(base64Sign, "=")
+
+	// Сверяем и возвращаем
+	return base64Sign == rawParams["sign"][0], nil
+}
+
+func main() {
+	status, err := isValid(
+		"https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_user=1&vk_are_notifications_enabled=1&vk_language=ru&vk_access_token_settings=&vk_platform=android&sign=exTIBPYTrAKDTHLLm2AwJkmcVcvFCzQUNyoa6wAjvW6k",
+		"wvl68m4dR1UpLrVRli",
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(status)
+}
 ```
