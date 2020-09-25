@@ -3,6 +3,7 @@
 * [PHP](#php)  
 * [Java (1.8)](#java1p8)  
 * [Python 3](#python3)  
+* [Node](#node)
 
 <a name="php"/>
 
@@ -143,4 +144,33 @@ query_params = dict(parse_qsl(urlparse(url).query, keep_blank_values=True))
 status = is_valid(query=query_params, secret=client_secret)
 
 print("ok" if status else "fail")
+```
+
+<a name="node"/>
+
+## Пример проверки подписи на Node JS
+
+```javascript
+const qs = require('querystring');
+const crypto = require('crypto');
+
+const urlParams = qs.parse(URL_PARAMS);
+const ordered = {};
+Object.keys(urlParams).sort().forEach((key) => {
+    if (key.slice(0, 3) === 'vk_') {
+        ordered[key] = urlParams[key];
+    }
+});
+
+const stringParams = qs.stringify(ordered);
+const paramsHash = crypto
+    .createHmac('sha256', secretKey)
+    .update(stringParams)
+    .digest()
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=$/, '');
+
+console.log(paramsHash === urlParams.sign);
 ```
