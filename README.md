@@ -4,6 +4,7 @@
 * [Java (1.8)](#java1p8)  
 * [Python 3](#python3)  
 * [Node](#node)
+* [TypeScript](#typescript)
 
 <a name="php"/>
 
@@ -151,26 +152,170 @@ print("ok" if status else "fail")
 ## Пример проверки подписи на Node JS
 
 ```javascript
-const qs = require('querystring');
 const crypto = require('crypto');
 
-const urlParams = qs.parse(URL_PARAMS);
-const ordered = {};
-Object.keys(urlParams).sort().forEach((key) => {
-    if (key.slice(0, 3) === 'vk_') {
-        ordered[key] = urlParams[key];
-    }
-});
+/**
+ * Верифицирует параметры запуска.
+ * @param searchOrParsedUrlQuery
+ * @param {string} secretKey
+ * @returns {boolean}
+ */
+function verifyLaunchParams(searchOrParsedUrlQuery, secretKey) {
+  let sign;
+  const queryParams = [];
 
-const stringParams = qs.stringify(ordered);
-const paramsHash = crypto
+  /**
+   * Функция, которая обрабатывает входящий query-параметр. В случае передачи
+   * параметра, отвечающего за подпись, подменяет "sign". В случае встречи
+   * корректного в контексте подписи параметра, добавляет его в массив
+   * известных параметров.
+   * @param key
+   * @param value
+   */
+  const processQueryParam = (key, value) => {
+    if (typeof value === 'string') {
+      if (key === 'sign') {
+        sign = value;
+      } else if (key.startsWith('vk_')) {
+        queryParams.push({key, value});
+      }
+    }
+  };
+
+  if (typeof searchOrParsedUrlQuery === 'string') {
+    // Если строка начинается с вопроса (если передан window.location.search),
+    // его необходимо удалить.
+    const formattedSearch = searchOrParsedUrlQuery.startsWith('?')
+      ? searchOrParsedUrlQuery.slice(1)
+      : searchOrParsedUrlQuery;
+
+    // Пытаемся спарсить строку, как query-параметр.
+    formattedSearch.split('&').forEach(param => {
+      const [key, value] = param.split('=');
+      processQueryParam(key, value);
+    }, []);
+  } else {
+    Object.keys(searchOrParsedUrlQuery).forEach(key => {
+      const value = searchOrParsedUrlQuery[key];
+      processQueryParam(key, value);
+    });
+  }
+  // Обрабатываем исключительный случай, когда подпись в параметрах не найдена,
+  // а также не найден ни один параметр, начинающийся с "vk_", дабы избежать
+  // излишней нагрузки образующейся в процессе работы дальнейшего кода.
+  if (!sign || queryParams.length === 0) {
+    return false;
+  }
+  // Снова создаем query в виде строки из уже отфильтрованных параметров.
+  const queryString = queryParams
+    // Сортируем ключи в порядке возрастания.
+    .sort((a, b) => a.key.localeCompare(b.key))
+    // Воссоздаем новый query в виде строки.
+    .reduce((acc, {key, value}, idx) => {
+      return acc + (idx === 0 ? '' : '&') + `${key}=${value}`;
+    }, '');
+
+  // Создаем хэш получившейся строки на основе секретного ключа.
+  const paramsHash = crypto
     .createHmac('sha256', secretKey)
-    .update(stringParams)
+    .update(queryString)
     .digest()
     .toString('base64')
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=$/, '');
 
-console.log(paramsHash === urlParams.sign);
+  return paramsHash === sign;
+}
+```
+
+<a name="typescript"/>
+
+## Пример проверки подписи на TypeScript
+
+```typescript
+import {ParsedUrlQuery} from 'querystring';
+import crypto from 'crypto';
+
+interface IQueryParam {
+  key: string;
+  value: string;
+}
+
+/**
+ * Верифицирует параметры запуска.
+ * @param searchOrParsedUrlQuery
+ * @param {string} secretKey
+ * @returns {boolean}
+ */
+function verifyLaunchParams(
+  searchOrParsedUrlQuery: string | ParsedUrlQuery,
+  secretKey: string,
+): boolean {
+  let sign: string | undefined;
+  const queryParams: IQueryParam[] = [];
+
+  /**
+   * Функция, которая обрабатывает входящий query-параметр. В случае передачи
+   * параметра, отвечающего за подпись, подменяет "sign". В случае встречи
+   * корректного в контексте подписи параметра, добавляет его в массив
+   * известных параметров.
+   * @param key
+   * @param value
+   */
+  const processQueryParam = (key: string, value: any) => {
+    if (typeof value === 'string') {
+      if (key === 'sign') {
+        sign = value;
+      } else if (key.startsWith('vk_')) {
+        queryParams.push({key, value});
+      }
+    }
+  };
+
+  if (typeof searchOrParsedUrlQuery === 'string') {
+    // Если строка начинается с вопроса (если передан window.location.search),
+    // его необходимо удалить.
+    const formattedSearch = searchOrParsedUrlQuery.startsWith('?')
+      ? searchOrParsedUrlQuery.slice(1)
+      : searchOrParsedUrlQuery;
+
+    // Пытаемся спарсить строку, как query-параметр.
+    formattedSearch.split('&').forEach(param => {
+      const [key, value] = param.split('=');
+      processQueryParam(key, value);
+    }, []);
+  } else {
+    Object.keys(searchOrParsedUrlQuery).forEach(key => {
+      const value = searchOrParsedUrlQuery[key];
+      processQueryParam(key, value);
+    });
+  }
+  // Обрабатываем исключительный случай, когда подпись в параметрах не найдена,
+  // а также не найден ни один параметр, начинающийся с "vk_", дабы избежать
+  // излишней нагрузки образующейся в процессе работы дальнейшего кода.
+  if (!sign || queryParams.length === 0) {
+    return false;
+  }
+  // Снова создаем query в виде строки из уже отфильтрованных параметров.
+  const queryString = queryParams
+    // Сортируем ключи в порядке возрастания.
+    .sort((a, b) => a.key.localeCompare(b.key))
+    // Воссоздаем новый query в виде строки.
+    .reduce<string>((acc, {key, value}, idx) => {
+      return acc + (idx === 0 ? '' : '&') + `${key}=${value}`;
+    }, '');
+
+  // Создаем хэш получившейся строки на основе секретного ключа.
+  const paramsHash = crypto
+    .createHmac('sha256', secretKey)
+    .update(queryString)
+    .digest()
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=$/, '');
+
+  return paramsHash === sign;
+}
 ```
