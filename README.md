@@ -190,15 +190,15 @@ function verifyLaunchParams(searchOrParsedUrlQuery, secretKey) {
       : searchOrParsedUrlQuery;
 
     // Пытаемся спарсить строку, как query-параметр.
-    formattedSearch.split('&').forEach(param => {
+    for (const param of formattedSearch.split('&')) {
       const [key, value] = param.split('=');
       processQueryParam(key, value);
-    }, []);
+    }
   } else {
-    Object.keys(searchOrParsedUrlQuery).forEach(key => {
+    for (const key of Object.keys(searchOrParsedUrlQuery)) {
       const value = searchOrParsedUrlQuery[key];
       processQueryParam(key, value);
-    });
+    }
   }
   // Обрабатываем исключительный случай, когда подпись в параметрах не найдена,
   // а также не найден ни один параметр, начинающийся с "vk_", дабы избежать
@@ -281,15 +281,15 @@ function verifyLaunchParams(
       : searchOrParsedUrlQuery;
 
     // Пытаемся спарсить строку, как query-параметр.
-    formattedSearch.split('&').forEach(param => {
+    for (const param of formattedSearch.split('&')) {
       const [key, value] = param.split('=');
       processQueryParam(key, value);
-    }, []);
+    }
   } else {
-    Object.keys(searchOrParsedUrlQuery).forEach(key => {
+    for (const key of Object.keys(searchOrParsedUrlQuery)) {
       const value = searchOrParsedUrlQuery[key];
       processQueryParam(key, value);
-    });
+    }
   }
   // Обрабатываем исключительный случай, когда подпись в параметрах не найдена,
   // а также не найден ни один параметр, начинающийся с "vk_", дабы избежать
