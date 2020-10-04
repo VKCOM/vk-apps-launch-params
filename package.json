@@ -4,27 +4,7 @@
   "description": "",
   "main": "index.js",
   "homepage": "https://vkcom.github.io/vk-apps-launch-params/",
-  "scripts": {
-    "start": "cross-env PORT=10888 react-scripts start",
-    "build": "react-scripts build",
-    "deploy": "gh-pages -d build",
-    "predeploy": "npm run build"
-  },
   "keywords": [],
   "author": "",
-  "license": "MIT",
-  "devDependencies": {
-    "cross-env": "^5.2.0",
-    "react-hot-loader": "^4.3.11",
-    "react-scripts": "^1.1.5"
-  },
-  "dependencies": {
-    "@vkontakte/icons": "^1.4.3",
-    "@vkontakte/vkui": "^2.20.0",
-    "@vkontakte/vkui-connect": "^1.1.2",
-    "core-js": "^2.5.7",
-    "gh-pages": "^2.0.1",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0"
-  }
+  "license": "MIT"
 }
