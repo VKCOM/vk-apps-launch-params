@@ -1,14 +1,103 @@
 # vk-apps-launch-params
-Пример работы с параметрами запуска:
-* [PHP](#php)  
-* [Java (1.8)](#java1p8)  
-* [Python 3](#python3)  
-* [Node](#node)
-* [TypeScript](#typescript)
+Всё, касательно параметров запуска в VK Mini Apps.
+
+## Оглавление
+- [Основная информация](#intro)
+- [Пример передачи параметров запуска на сервер](#how-to-send-launch-params)
+- [Примеры проверки подписи на различных языка](#examples)
+    - [PHP](#php)  
+    - [Java (1.8)](#java1p8)  
+    - [Python 3](#python3)  
+    - [Node](#node)
+    - [TypeScript](#typescript)
+  
+<a name="intro"/>
+  
+## Основная информация
+Основная цель параметров запуска - передать приложению информацию о том, в 
+каком контексте оно запущено. Под контекстом запуска можно понимать достаточно
+много - начиная тем, откуда приложение запущено (из каталога, из группы и 
+прочее), какие права ему даны, и заканчивая тем, кто именно его запустил.
+
+Также, параметры запуска можно использовать как аутентификационные данные на 
+сервере, что позволяет избавиться от создания своей собственной системы 
+авторизации.
+
+Полный список параметров запуска можно получить [здесь](https://vk.com/dev/vk_apps_docs3?f=6.%2B%D0%9F%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%8B%2B%D0%B7%D0%B0%D0%BF%D1%83%D1%81%D0%BA%D0%B0).
+
+Каждый раз, когда ваше приложение открывается, в зависимости от среды запуска 
+(браузер или нативное приложение ВКонтакте), создается iframe (в браузере), 
+либо WebView (в нативном приложении ВКонтакте), куда и передаются параметры 
+запуска в виде самых обычных query-параметров. Таким образом, ссылка
+в среде запуска (iframe или WebView) будет выглядеть так:
+
+`{app_url}?vk_access_token_settings=...&vk_app_id=...&...`
+
+Стоит помнить, что все параметры запуска начинаются с префикса `vk_`. Так же,
+имеется дополнительный параметр, именуемый `sign`. Основная его задача - 
+быть гарантом того, что все переданные параметры запуска являются валидными,
+то есть не подделаны. Как его использовать, будет рассмотрено далее.
+
+<a name="how-to-send-launch-params"/>
+
+## Передача параметров запуска на сервер
+
+Для того, чтобы получить список параметров запуска в строковом виде, достаточно
+обратиться к `window.location.search`:
+
+```javascript
+// Используем slice(1) для того, чтобы отбросить знак вопроса в начале.
+const params = window.location.search.slice(1);
+```
+
+Теперь, когда мы знаем, как получить параметры запуска, нам необходимо каким-то
+образом передать их на сервер. Разработчики, зачастую, допускают ошибку,
+используя explicit-метод (неявный, интуитивно непонятный) передачи - используют
+прикрепляемый браузером заголовок Referer, который равен текущему адресу 
+страницы (у нас страница - это приложение). 
+
+Дело в том, что при любых запросах стоит запрещать браузеру прикреплять этот
+заголовок. Его использование чревато тем, что при запросе на какой-либо 
+сторонний сервер, вы, сами того не зная, передадите ему свои параметры запуска.
+Этим самым, вы отдадите свои аутентификационные данные, после чего злоумышленник
+сможет представиться вашему серверу именно вами, либо другим пользователем, чьи 
+данные он смог украсть. Как решить эту проблему, читайте 
+[здесь](https://stackoverflow.com/a/32014225).
+
+Итак, мы не можем использовать Referer. Как workaround, и самый, пожалуй, 
+интуитивно понятный вариант решения проблемы - можно напрямую передавать
+указанный вами заголовок, значением которого и будет равно списку параметров 
+запуска. В этом примере мы будем использовать библиотеку [axios](https://github.com/axios/axios), 
+но вы можете использовать ту, которая удобнее вам.
+
+```javascript
+import axios from 'axios';
+
+// Создаем инстанс axios.
+const http = axios.create({
+  headers: {
+    // Прикрепляем заголовок, отвечающий за параметры запуска.
+    'x-launch-params': window.location.search.slice(1),
+  }
+});
+
+// Теперь, при попытке сделать запросы при помощи ранее созданного инстанса
+// axios (именуемого "http"), он будет автоматически прикреплять необходимый 
+// нам заголовок, который мы сможем проверить на серверной стороне.
+```
+
+Далее, после того, как мы поняли, что заголовок уходит на сервер, осталось
+валидировать переданные параметры запуска. Для этого необходимо достать
+значение из нашего заголовка и использовать один из методов проверки 
+подписи описанных далее.
+
+<a name="examples"/>
+
+## Примеры проверки подписи на различных языка
 
 <a name="php"/>
 
-## Пример проверки подписи на PHP
+### PHP
 
 ```php
 $url = 'https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_user=1&vk_are_notifications_enabled=1&vk_language=ru&vk_access_token_settings=&vk_platform=android&sign=exTIBPYTrAKDTHLLm2AwJkmcVcvFCzQUNyoa6wAjvW6k';
@@ -37,7 +126,7 @@ echo ($status ? 'ok' : 'fail')."\n";
 
 <a name="java1p8"/>
 
-## Пример проверки подписи на Java (1.8)
+### Java (1.8)
 
 ```java
 import javax.crypto.Mac;
@@ -119,7 +208,7 @@ class Application {
 
 <a name="python3"/>
 
-## Пример проверки подписи на Python 3
+### Python 3
 
 ```python
 from base64 import b64encode
@@ -149,7 +238,7 @@ print("ok" if status else "fail")
 
 <a name="node"/>
 
-## Пример проверки подписи на Node JS
+### Node JS
 
 ```javascript
 const crypto = require('crypto');
@@ -227,11 +316,20 @@ function verifyLaunchParams(searchOrParsedUrlQuery, secretKey) {
 
   return paramsHash === sign;
 }
+
+const url = 'https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_user=1&vk_are_notifications_enabled=1&vk_language=ru&vk_access_token_settings=&vk_platform=android&sign=exTIBPYTrAKDTHLLm2AwJkmcVcvFCzQUNyoa6wAjvW6k';
+const clientSecret = 'wvl68m4dR1UpLrVRli'; // Защищённый ключ из настроек вашего приложения
+
+// Берем только параметры запуска.
+const launchParams = url.slice(url.indexOf('?') + 1);
+
+// Проверяем, валидны ли параметры запуска.
+const areLaunchParamsValid = verifyLaunchParams(launchParams, clientSecret);
 ```
 
 <a name="typescript"/>
 
-## Пример проверки подписи на TypeScript
+### TypeScript
 
 ```typescript
 import {ParsedUrlQuery} from 'querystring';
@@ -318,4 +416,13 @@ function verifyLaunchParams(
 
   return paramsHash === sign;
 }
+
+const url = 'https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_user=1&vk_are_notifications_enabled=1&vk_language=ru&vk_access_token_settings=&vk_platform=android&sign=exTIBPYTrAKDTHLLm2AwJkmcVcvFCzQUNyoa6wAjvW6k';
+const clientSecret = 'wvl68m4dR1UpLrVRli'; // Защищённый ключ из настроек вашего приложения
+
+// Берем только параметры запуска.
+const launchParams = url.slice(url.indexOf('?') + 1);
+
+// Проверяем, валидны ли параметры запуска.
+const areLaunchParamsValid = verifyLaunchParams(launchParams, clientSecret);
 ```
