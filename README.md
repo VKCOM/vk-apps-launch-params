@@ -342,7 +342,7 @@ function verifyLaunchParams(searchOrParsedUrlQuery, secretKey) {
     .sort((a, b) => a.key.localeCompare(b.key))
     // Воссоздаем новый query в виде строки.
     .reduce((acc, {key, value}, idx) => {
-      return acc + (idx === 0 ? '' : '&') + `${key}=${value}`;
+      return acc + (idx === 0 ? '' : '&') + `${key}=${encodeURIComponent(value)}`;
     }, '');
 
   // Создаем хэш получившейся строки на основе секретного ключа.
@@ -442,7 +442,7 @@ function verifyLaunchParams(
     .sort((a, b) => a.key.localeCompare(b.key))
     // Воссоздаем новый query в виде строки.
     .reduce<string>((acc, {key, value}, idx) => {
-      return acc + (idx === 0 ? '' : '&') + `${key}=${value}`;
+      return acc + (idx === 0 ? '' : '&') + `${key}=${encodeURIComponent(value)}`;
     }, '');
 
   // Создаем хэш получившейся строки на основе секретного ключа.
