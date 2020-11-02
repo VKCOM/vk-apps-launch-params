@@ -307,7 +307,7 @@ function verifyLaunchParams(searchOrParsedUrlQuery, secretKey) {
       if (key === 'sign') {
         sign = value;
       } else if (key.startsWith('vk_')) {
-        queryParams.push({key, value});
+        queryParams.push({key, value: decodeURIComponent(value)});
       }
     }
   };
@@ -407,7 +407,7 @@ function verifyLaunchParams(
       if (key === 'sign') {
         sign = value;
       } else if (key.startsWith('vk_')) {
-        queryParams.push({key, value});
+        queryParams.push({key, value: decodeURIComponent(value)});
       }
     }
   };
