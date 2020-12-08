@@ -90,7 +90,7 @@ import axios from 'axios';
 const http = axios.create({
   headers: {
     // Прикрепляем заголовок, отвечающий за параметры запуска.
-    'x-launch-params': window.location.search.slice(1),
+    Authorization: `Bearer ${window.location.search.slice(1)}`,
   }
 });
 
