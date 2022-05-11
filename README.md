@@ -111,5 +111,5 @@ const http = axios.create({
 - [Python 3](/examples/python3.py)
 - [Node JS](/examples/node.js)
 - [TypeScript](/examples/typescript.ts)
-- [Go](/examples/go.go)
+- [GoLang](/examples/golang.go)
 
