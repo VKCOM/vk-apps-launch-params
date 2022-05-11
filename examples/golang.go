@@ -160,7 +160,7 @@ func VerifyLaunchParams(
 	// Далее по правилам создания параметров запуска ВКонтакте, необходимо
 	// произвести ряд замен символов.
 	hash = strings.Replace(hash, "+", "-", -1)
-	hash = strings.Replace(hash, "\\", "_", -1)
+	hash = strings.Replace(hash, "/", "_", -1)
 	hash = strings.Replace(hash, "=", "", -1)
 
 	if sign != hash {
