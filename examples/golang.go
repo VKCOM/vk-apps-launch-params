@@ -105,9 +105,9 @@ func VerifyLaunchParams(querySearch string, secretKey string) error {
 
 	// Далее по правилам создания параметров запуска ВКонтакте, необходимо
 	// произвести ряд замен символов.
-	hash = strings.Replace(hash, "+", "-", -1)
-	hash = strings.Replace(hash, "/", "_", -1)
-	hash = strings.Replace(hash, "=", "", -1)
+	hash = strings.ReplaceAll(hash, "+", "-")
+	hash = strings.ReplaceAll(hash, "/", "_")
+	hash = strings.ReplaceAll(hash, "=", "")
 
 	if sign != hash {
 		return errors.New(SignInvalid)
