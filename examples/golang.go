@@ -63,7 +63,11 @@ func VerifyLaunchParams(querySearch string, secretKey string) error {
 	for _, part := range strings.Split(querySearch, "&") {
 		var keyAndValue = strings.Split(part, "=")
 		var key = keyAndValue[0]
-		var value = keyAndValue[1]
+		var value string
+
+		if len(keyAndValue) > 1 {
+			value = keyAndValue[1]
+		}
 
 		// Мы обрабатываем только те ключи, которые начинаются с префикса "vk_".
 		// Все остальные ключи в создании подписи не участвуют.
