@@ -78,7 +78,7 @@ const url = 'https://example.com/?vk_user_id=494075&vk_app_id=6736218&vk_is_app_
 const clientSecret = 'wvl68m4dR1UpLrVRli'; // Защищённый ключ из настроек вашего приложения
 
 // Берём только параметры запуска.
-const launchParams = url.slice(url.indexOf('?') + 1);
+const launchParams = decodeURIComponent(url.slice(url.indexOf('?') + 1));
 
 // Проверяем, валидны ли параметры запуска.
 const areLaunchParamsValid = verifyLaunchParams(launchParams, clientSecret);
