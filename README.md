@@ -14,6 +14,7 @@
     - [Python 3](#python3)  
     - [Node](#node)
     - [TypeScript](#typescript)
+    - [Ruby](#ruby)
   
 <a name="intro"/>
   
@@ -112,4 +113,5 @@ const http = axios.create({
 - [Node JS](/examples/node.js)
 - [TypeScript](/examples/typescript.ts)
 - [GoLang](/examples/golang.go)
+- [Ruby](/examples/ruby.rb)
 
